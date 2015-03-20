@@ -1,0 +1,140 @@
+<?php
+
+/**
+ * Implements hook_menu()
+ */
+function logic_now_menu() {
+  $items['logic_now_xml_form'] = array(
+    'title' => 'Web Development Team Technical Exercise',
+    'type' => MENU_NORMAL_ITEM,
+    'description' => 'XML Form',
+    'access arguments' => array('access content'),
+    'page callback' => 'logic_now_xml_form_interface'
+  );
+
+  return $items;
+}
+
+function logic_now_xml_form_interface(){
+  /*
+   * On reflection, it would prudent to dynamically create the js file added below.
+   * This would allow control labels to be referred to in the warning dialog as opposed to
+   * user unfriendly control names and ids.
+   */
+  drupal_add_js(drupal_get_path('module', 'logic_now') . '/js/logic_now.js', 'file');
+
+  /*
+   * Note: it would be possible to pass the name of xml file to be processed as an argument
+   * in the menu page definition, however for this exercise, we refer to the static file.
+   */
+  $xml_file = drupal_get_path('module', 'logic_now') . '/drupal_7.xml';
+
+  $ln_form = drupal_get_form('logic_now_xml_form', $xml_file);
+  return drupal_render($ln_form);
+}
+
+function logic_now_xml_form($form, &$form_state, $xml_file){
+  $xml_object = simplexml_load_file($xml_file);
+
+  $xml_array = xmlobject2Array($xml_object);
+
+
+  foreach($xml_array['fieldset']['fields']['field'] as $field){
+    $form[$field['name']] = array(
+      '#type' => ($field['type'] == 'text') ? 'textfield' : $field['type'],
+      '#title' => $field['label'],
+    );
+    if(isset($field['maxlen'])) $form[$field['name']]['#maxlen'] = $field['maxlen'];
+    if(isset($field['default_value'])){
+      if($field['type'] == 'date'){
+        $date_array = explode('-', $field['default_value']);
+        $form[$field['name']]['#default_value']  = array('year' => $date_array[0], 'month' => $date_array[1], 'day' => $date_array[2]);
+      }else{
+        $form[$field['name']]['#default_value'] = $field['default_value'];
+      }
+    }
+    if(isset($field['required'])) $form[$field['name']]['#required'] = $field['required'];
+    if(isset($field['description'])) $form[$field['name']]['#description'] = $field['description'];
+    if(isset($field['options'])){
+      if($field['type'] == 'radio'){
+        $form[$field['name']]['#type'] = 'radios';
+        $form[$field['name']]['#options'] = $field['options']['option'];
+      }else{
+        foreach($field['options']['option'] as $key => $option){
+          if(isset($option['text'])){
+            $form[$field['name']]['#options'][$option['value']] = $option['text'];
+          }
+        }
+      }
+    }
+  }
+
+  // our submit button for the dynamically created form
+  $form['check'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#submit' => array('logic_now_submit')
+  );
+
+  $form['#validate'][] = 'logic_now_validate';
+
+  return $form;
+}
+
+function logic_now_validate($form, &$form_state){
+  /*
+   * Note, these validations are looking for where the user "omit any required fields", as requested in the ...
+   * LogicNow: Web Development Team Technical Exercise
+   *
+   * Other types of validation are possible here, e.g. testing the dob falls within a certain date range, checking
+   * for non alphanumeric characters in a name etc
+   */
+
+  // Validate on specific fields here
+  if(empty($form_state['values']['forename'])){
+    form_error($form, 'Please enter a value for your forename');
+  }
+  if(empty($form_state['values']['surename'])){
+    form_error($form, 'Please enter a value for your surename');
+  }
+  if(empty($form_state['values']['dob'])){
+    form_error($form, 'Please enter a value for your dob');
+  }
+  if(empty($form_state['values']['employment'])){
+    form_error($form, 'Please enter a value for your employment');
+  }
+  if(empty($form_state['values']['gender'])){
+    form_error($form, 'Please enter a value for your gender');
+  }
+  if(empty($form_state['values']['terms'])){
+    form_error($form, 'Please agree to the terms');
+  }
+}
+
+function logic_now_submit($form, &$form_state){
+  $form_state['redirect'] = 'http://www.controlnow.com';
+}
+
+
+function xmlobject2Array($arrObjData, $arrSkipIndices = array())
+{
+  $arrData = array();
+
+  // if input is object, convert into array
+  if (is_object($arrObjData)) {
+    $arrObjData = get_object_vars($arrObjData);
+  }
+
+  if (is_array($arrObjData)) {
+    foreach ($arrObjData as $index => $value) {
+      if (is_object($value) || is_array($value)) {
+        $value = xmlobject2Array($value, $arrSkipIndices); // recursive call
+      }
+      if (in_array($index, $arrSkipIndices)) {
+        continue;
+      }
+      $arrData[$index] = $value;
+    }
+  }
+  return $arrData;
+}

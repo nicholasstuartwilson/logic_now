@@ -1,0 +1,5 @@
+name = "logic_now"
+description = "Web Development Team Technical Exercise"
+package = Logic Now
+core = 7.x
+configure = admin/config/logic-now

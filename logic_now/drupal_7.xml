@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <page>
+    <fieldset>
+      <title>Personal Details</title>
+      <fields>
+        <field>
+          <name>forename</name>
+          <label>First name</label>
+          <type>text</type>
+          <maxlen>12</maxlen>
+          <default_value>Dave</default_value>
+          <required>1</required>          
+        </field>
+        <field>
+          <name>surename</name>
+          <label>Last name</label>
+          <type>text</type>
+          <maxlen>15</maxlen>
+          <default_value>Smith</default_value>
+          <required>1</required>
+        </field>
+        <field>
+          <name>dob</name>
+          <label>Date of birth</label>
+          <type>date</type>          
+          <default_value>1980-01-23</default_value>
+          <required>1</required>
+        </field>
+        <field>
+          <name>bio</name>
+          <label>Bio (a little something about yourself)</label>
+          <type>textarea</type>          
+          <required>0</required>
+        </field>
+        <field>
+          <name>employment</name>
+          <label>Employment status</label>
+          <type>select</type>
+          <default_value>employed</default_value>
+          <options>
+            <option>
+              <text>Employed</text>
+              <value>employed</value>
+            </option>
+            <option>
+              <text>Unemployed</text>
+              <value>unemployed</value>
+            </option>
+          </options>
+          <required>1</required>
+        </field>        
+        <field>
+          <name>gender</name>
+          <label>gender</label>
+          <description>Please select your gender below</description>
+          <type>radio</type>
+          <options>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Jedi</option>
+          </options>
+          <required>1</required>
+        </field>
+        <field>
+          <name>terms</name>
+          <label>Agree terms</label>
+          <description>Please read our terms and conditions and check this box</description>
+          <type>checkbox</type>
+          <required>1</required>
+        </field>
+      </fields>
+    </fieldset>    
+  </page>
